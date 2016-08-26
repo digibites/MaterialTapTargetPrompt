@@ -37,6 +37,7 @@ import android.support.annotation.StringRes;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
@@ -616,6 +617,18 @@ public class MaterialTapTargetPrompt
 
     private void updateBackgroundRadius()
     {
+        String TAG = "TapTarget";
+        
+        if (false) {
+            Log.i(TAG, "Target center: left=" + mView.mCentreLeft + ", top=" + mView.mCentreTop);
+            Log.i(TAG, "Primary text: top=" + mView.mPrimaryTextTop + ", width=" + mView.mPrimaryTextLayout.getWidth() +
+                    ", height=" + mView.mPrimaryTextLayout.getHeight());
+            
+            if (mView.mSecondaryTextLayout != null)
+                Log.i(TAG, "Secondary text: separation=" + mView.mTextSeparation + ", width=" + 
+                        mView.mSecondaryTextLayout.getWidth() + ", height=" + mView.mSecondaryTextLayout.getHeight());
+        }
+        
         final float height;
         if (mTextPositionAbove)
         {
@@ -633,11 +646,20 @@ public class MaterialTapTargetPrompt
         }
         else
         {
-            length = mView.mTextLeft + Math.max(mView.mPrimaryTextLayout.getWidth(), mView.mSecondaryTextLayout != null ? mView.mSecondaryTextLayout.getWidth() : 0)
-                    + mTextPadding - mView.mCentreLeft;
+            int secondaryWidth = mView.mSecondaryTextLayout != null ? mView.mSecondaryTextLayout.getWidth() : 0;
+            int maxWidth = Math.max(mView.mPrimaryTextLayout.getWidth(), secondaryWidth);
+            float pastCenterRight = mView.mTextLeft + maxWidth + mTextPadding - mView.mCentreLeft;
+            float pastCenterLeft = mView.mCentreLeft;
+            
+            length = Math.max(pastCenterLeft, pastCenterRight);
         }
+        
+        Log.i(TAG, "Height: " + height + ", width: " + length);
+        
         //noinspection SuspiciousNameCombination
         mBaseBackgroundRadius = Double.valueOf(Math.sqrt(Math.pow(length, 2) + Math.pow(height, 2))).floatValue();
+        
+        Log.i(TAG, "Radius: " + mBaseBackgroundRadius);
     }
 
     private void updateIconPosition()
